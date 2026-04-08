@@ -143,7 +143,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div class="flex items-center justify-end space-x-2">
                                             <template x-if="canSupervise">
-                                                <div class="hidden lg:flex space-x-2 border-r border-gray-200 pr-2 mr-1">
+                                                <div class="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-1 border-r border-gray-200 pr-2 mr-1">
                                                     @if(in_array($lot->estado, [\App\Models\Lot::ESTADO_DISPONIBLE, \App\Models\Lot::ESTADO_BLOQUEADO]))
                                                         <button type="button" 
                                                                 @click="if(confirm('Marcar Mza {{ $lot->manzana }} Lote {{ $lot->nro_lote }} como reservado?')) { window.fetchApi('/lots/{{ $lot->id }}/reserve', { method: 'PUT' }).then(res => { alert(res.message); window.location.reload(); }); }"

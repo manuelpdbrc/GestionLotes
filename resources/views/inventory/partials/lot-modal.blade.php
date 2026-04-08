@@ -68,9 +68,13 @@
                         <span class="block text-gray-500 text-xs uppercase tracking-wider font-semibold">FOS</span>
                         <span class="text-gray-900 font-medium" x-text="selectedLot?.fos ?? '-'"></span>
                     </div>
-                    <div class="bg-gray-50 p-3 rounded-lg justify-center flex flex-col items-center col-span-2">
+                    <div class="bg-gray-50 p-3 rounded-lg justify-center flex flex-col items-center col-span-2 sm:col-span-1">
                         <span class="block text-gray-500 text-xs uppercase tracking-wider font-semibold">Alt. Máxima</span>
                         <span class="text-gray-900 font-medium" x-text="selectedLot?.h_maxima ? `${selectedLot.h_maxima} m` : '-'"></span>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg justify-center flex flex-col items-center col-span-2 sm:col-span-1">
+                        <span class="block text-gray-500 text-xs uppercase tracking-wider font-semibold">Sup. Máxima</span>
+                        <span class="text-gray-900 font-medium" x-text="selectedLot?.superficie_maxima ? `${selectedLot.superficie_maxima} m²` : '-'"></span>
                     </div>
                 </div>
 
@@ -87,7 +91,7 @@
                             <div class="mt-2 text-sm text-yellow-700">
                                 <p><strong>Vendedor:</strong> <span x-text="selectedLot?.block?.vendedor"></span></p>
                                 <p><strong>Cliente:</strong> <span x-text="selectedLot?.block?.client_name"></span></p>
-                                <p x-show="isSupervisor || selectedLot?.block?.is_own"><strong>Tel:</strong> <span x-text="selectedLot?.block?.client_phone"></span></p>
+                                <p x-show="canSupervise || selectedLot?.block?.is_own"><strong>Tel:</strong> <span x-text="selectedLot?.block?.client_phone"></span></p>
                                 <p class="mt-1 font-semibold"><strong>Vence:</strong> <span x-text="selectedLot?.block?.expires_at"></span></p>
                             </div>
                         </div>
@@ -130,7 +134,7 @@
                 </div>
 
                 <!-- Acciones Supervisor -->
-                <div x-show="isSupervisor" class="mt-4 border-t pt-4 space-y-4">
+                <div x-show="canSupervise" class="mt-4 border-t pt-4 space-y-4">
                     <h4 class="text-sm font-bold text-gray-700">Acciones de Supervisor</h4>
                     
                     <div x-data="{ extendTime: '', showExtend: false }" x-show="selectedLot?.block" class="bg-yellow-50 border border-yellow-200 p-3 rounded-md">

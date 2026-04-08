@@ -9,22 +9,29 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             <!-- KPIs -->
+            <div class="flex justify-between items-end">
+                <h3 class="text-lg font-bold text-gray-700">Métricas de Desempeño</h3>
+                <div class="flex items-center space-x-2">
+                    <label class="text-sm text-gray-500 font-medium">Fecha:</label>
+                    <input type="date" x-model="kpiDate" @change="loadKPIs" class="border-gray-300 rounded-md shadow-sm text-sm p-1">
+                </div>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="bg-white overflow-hidden shadow-sm hover:shadow-md transition sm:rounded-lg">
                     <div class="p-6">
-                        <div class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Bloqueos Hoy</div>
+                        <div class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Bloqueos</div>
                         <div class="text-3xl font-bold text-indigo-600" x-text="kpis.blocks_today">0</div>
                     </div>
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm hover:shadow-md transition sm:rounded-lg">
                     <div class="p-6">
-                        <div class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Reservas Hoy</div>
+                        <div class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Reservas</div>
                         <div class="text-3xl font-bold text-gray-900" x-text="kpis.reservations_today">0</div>
                     </div>
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm hover:shadow-md transition sm:rounded-lg">
                     <div class="p-6">
-                        <div class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Bloqueos Caídos Hoy</div>
+                        <div class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Bloqueos Caídos</div>
                         <div class="text-3xl font-bold text-red-600" x-text="kpis.expired_today">0</div>
                     </div>
                 </div>
@@ -121,6 +128,7 @@
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('dashboardData', () => ({
+                kpiDate: '{{ \Carbon\Carbon::today()->toDateString() }}',
                 kpis: { blocks_today: 0, reservations_today: 0, expired_today: 0 },
                 inventoryTotal: 0,
                 
@@ -140,7 +148,7 @@
                 },
 
                 async loadKPIs() {
-                    let res = await fetch('/api/dashboard/kpis');
+                    let res = await fetch('/api/dashboard/kpis?date=' + this.kpiDate);
                     this.kpis = await res.json();
                 },
 

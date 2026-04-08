@@ -131,26 +131,26 @@ class DashboardController extends Controller
     /**
      * KPI data: blocks/day, expired/day, reservations/day.
      */
-    public function kpis()
+    public function kpis(Request $request)
     {
-        $today = Carbon::today();
+        $targetDate = $request->filled('date') ? Carbon::parse($request->date) : Carbon::today();
 
-        $blocksToday = BlockHistory::where('action', BlockHistory::ACTION_CREATED)
-            ->whereDate('created_at', $today)
+        $blocksCount = BlockHistory::where('action', BlockHistory::ACTION_CREATED)
+            ->whereDate('created_at', $targetDate)
             ->count();
 
-        $expiredToday = BlockHistory::where('action', BlockHistory::ACTION_EXPIRED)
-            ->whereDate('created_at', $today)
+        $expiredCount = BlockHistory::where('action', BlockHistory::ACTION_EXPIRED)
+            ->whereDate('created_at', $targetDate)
             ->count();
 
-        $reservationsToday = LotHistory::where('new_state', Lot::ESTADO_RESERVADO)
-            ->whereDate('created_at', $today)
+        $reservationsCount = LotHistory::where('new_state', Lot::ESTADO_RESERVADO)
+            ->whereDate('created_at', $targetDate)
             ->count();
 
         return response()->json([
-            'blocks_today' => $blocksToday,
-            'expired_today' => $expiredToday,
-            'reservations_today' => $reservationsToday,
+            'blocks_today' => $blocksCount,
+            'expired_today' => $expiredCount,
+            'reservations_today' => $reservationsCount,
         ]);
     }
 
