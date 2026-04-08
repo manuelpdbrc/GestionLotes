@@ -42,11 +42,24 @@
                 <!-- Pie Chart: Inventario -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex flex-col items-center">
                     <h3 class="text-lg font-bold text-gray-700 w-full mb-4">Estado del Inventario</h3>
-                    <div class="relative h-64 w-full flex justify-center">
+                    <div class="relative h-48 w-full flex justify-center">
                         <canvas id="inventoryChart"></canvas>
                     </div>
-                    <div class="mt-4 text-sm text-gray-500 w-full text-center">
+                    <div class="mt-4 text-sm text-gray-500 w-full text-center pb-2 border-b border-gray-200">
                         Total Lotes Visibles: <span class="font-bold text-gray-900" x-text="inventoryTotal"></span>
+                    </div>
+                    <div class="w-full mt-2">
+                        <table class="w-full text-sm text-left">
+                            <tbody>
+                                <template x-for="item in inventoryData" :key="item.label">
+                                    <tr class="border-b last:border-b-0 border-gray-100">
+                                        <td class="py-2 w-8"><div class="w-4 h-4 rounded shadow-sm" :style="`background-color: ${item.color}`"></div></td>
+                                        <td class="py-2 font-medium text-gray-700" x-text="item.label"></td>
+                                        <td class="py-2 text-right font-bold text-gray-900" x-text="item.value"></td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -131,6 +144,7 @@
                 kpiDate: '{{ \Carbon\Carbon::today()->toDateString() }}',
                 kpis: { blocks_today: 0, reservations_today: 0, expired_today: 0 },
                 inventoryTotal: 0,
+                inventoryData: [],
                 
                 perfFrom: '',
                 perfTo: '',
@@ -156,6 +170,7 @@
                     let res = await fetch('/api/dashboard/inventory');
                     let data = await res.json();
                     this.inventoryTotal = data.total;
+                    this.inventoryData = data.data;
 
                     new Chart(document.getElementById('inventoryChart'), {
                         type: 'doughnut',
@@ -170,7 +185,7 @@
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
-                            plugins: { legend: { position: 'bottom' } }
+                            plugins: { legend: { display: false } }
                         }
                     });
                 },

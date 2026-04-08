@@ -9,6 +9,7 @@
         q_manzana: '',
         q_nro: '',
         q_estado: [],
+        q_bloqueo_propio: false,
         lots: [],
         showModal: false,
         loadingData: false,
@@ -84,8 +85,18 @@
                         </div>
                     </div>
 
+                    <!-- Filtro: Mis Bloqueos (Vendedores) -->
+                    <div class="mb-5" x-show="isVendedor">
+                        <label class="flex items-center text-sm font-medium text-indigo-700 cursor-pointer bg-indigo-50 hover:bg-indigo-100 transition-colors p-2 rounded border border-indigo-100">
+                            <input type="checkbox"
+                                   class="rounded border-indigo-300 text-indigo-600 shadow-sm focus:ring-indigo-500 mr-2"
+                                   x-model="q_bloqueo_propio">
+                            <span>Solo ver mis bloqueos</span>
+                        </label>
+                    </div>
+
                     <div class="mt-8 border-t pt-4 space-y-3">
-                        <button @click="q_manzana=''; q_nro=''; q_estado=[];" class="w-full text-xs text-indigo-600 hover:text-indigo-900 font-medium bg-indigo-50 py-2 rounded transition-colors">
+                        <button @click="q_manzana=''; q_nro=''; q_estado=[]; q_bloqueo_propio=false;" class="w-full text-xs text-indigo-600 hover:text-indigo-900 font-medium bg-indigo-50 py-2 rounded transition-colors">
                             Limpiar Filtros
                         </button>
 
@@ -116,7 +127,8 @@
                                     x-show="
                                         (q_manzana === '' || '{{ $lot->manzana }}' === q_manzana) &&
                                         (q_nro === '' || '{{ $lot->nro_lote }}'.includes(q_nro)) &&
-                                        (q_estado.length === 0 || q_estado.includes('{{ $lot->estado }}'))
+                                        (q_estado.length === 0 || q_estado.includes('{{ $lot->estado }}')) &&
+                                        (!q_bloqueo_propio || '{{ $lot->activeBlock ? $lot->activeBlock->user_id : '' }}' === '{{ Auth::id() }}')
                                     ">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
@@ -134,11 +146,20 @@
                                         <div class="text-sm text-gray-500">{{ $lot->zona ?? '-' }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white"
-                                              style="background-color: {{ $lot->color }}">
-                                            <span class="hidden sm:inline">{{ $lot->label }}</span>
-                                            <span class="sm:hidden">{{ $lot->short_label }}</span>
-                                        </span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white"
+                                                  style="background-color: {{ $lot->color }}">
+                                                <span class="hidden sm:inline">{{ $lot->label }}</span>
+                                                <span class="sm:hidden">{{ $lot->short_label }}</span>
+                                            </span>
+                                            @if($lot->estado === 'bloqueado' && $lot->activeBlock)
+                                                @if($lot->activeBlock->user_id === Auth::id())
+                                                    <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">Mío</span>
+                                                @else
+                                                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded border border-gray-200" title="De otro vendedor">De otro</span>
+                                                @endif
+                                            @endif
+                                        </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div class="flex items-center justify-end space-x-2">
