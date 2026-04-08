@@ -16,7 +16,7 @@
         userRole: '{{ Auth::user()->role }}',
         isAdmin: {{ Auth::user()->isAdmin() ? 'true' : 'false' }},
         isVendedor: {{ Auth::user()->isVendedor() ? 'true' : 'false' }},
-        isSupervisor: {{ Auth::user()->isSupervisor() ? 'true' : 'false' }},
+        canSupervise: {{ Auth::user()->canSuperviseLots() ? 'true' : 'false' }},
 
         openModal(id) {
             this.showModal = true;
@@ -142,7 +142,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div class="flex items-center justify-end space-x-2">
-                                            <template x-if="isSupervisor">
+                                            <template x-if="canSupervise">
                                                 <div class="hidden lg:flex space-x-2 border-r border-gray-200 pr-2 mr-1">
                                                     @if(in_array($lot->estado, [\App\Models\Lot::ESTADO_DISPONIBLE, \App\Models\Lot::ESTADO_BLOQUEADO]))
                                                         <button type="button" 
