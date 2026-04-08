@@ -27,16 +27,43 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Gráficas de Tendencia</h3>
                     
-                    <form method="POST" action="{{ route('admin.settings.update') }}">
+                    <form method="POST" action="{{ route('admin.settings.update') }}" enctype="multipart/form-data">
                         @csrf
-                        <div class="mb-4">
-                            <label for="trend_start_date" class="block text-sm font-medium text-gray-700">Día 1 (Fecha de inicio para la curva del gráfico line-chart)</label>
-                            <p class="text-xs text-gray-500 mt-1 mb-2">Usado en el Dashboard para acumular reservas y bloqueos.</p>
+                        <div class="mb-6 pb-6 border-b border-gray-200">
+                            <h4 class="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wider">Personalización Visual</h4>
+                            
+                            <div class="mb-4">
+                                <label for="app_title" class="block text-sm font-medium text-gray-700">Título de la App</label>
+                                @php
+                                    $valTitle = \App\Models\SystemSetting::get('app_title', 'Gestión de Lotes');
+                                @endphp
+                                <input type="text" name="app_title" id="app_title" value="{{ $valTitle }}" class="mt-1 block max-w-sm w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            </div>
+
+                            <div>
+                                <label for="app_logo" class="block text-sm font-medium text-gray-700">Logo de la App (Opcional)</label>
+                                <p class="text-xs text-gray-500 mt-1 mb-2">Sube una imagen para reemplazar el texto en la barra superior (PNG, JPG, SVG max 2MB).</p>
+                                @php
+                                    $valLogo = \App\Models\SystemSetting::get('app_logo_path');
+                                @endphp
+                                @if($valLogo)
+                                    <div class="mb-2 bg-gray-100 inline-block p-2 rounded">
+                                        <img src="{{ Storage::url($valLogo) }}" alt="Logo Actual" class="h-10 object-contain">
+                                    </div>
+                                @endif
+                                <input type="file" name="app_logo" id="app_logo" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <h4 class="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wider">Dashboard</h4>
+                            <label for="trend_start_date" class="block text-sm font-medium text-gray-700">Día 1 (Fecha de inicio para la curva de tendencia)</label>
+                            <p class="text-xs text-gray-500 mt-1 mb-2">Usado para acumular el histórico en la gráfica de línea.</p>
                             
                             @php
                                 $val = \App\Models\SystemSetting::get('trend_start_date', \Carbon\Carbon::today()->toDateString());
                             @endphp
-                            <input type="date" name="trend_start_date" id="trend_start_date" value="{{ $val }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <input type="date" name="trend_start_date" id="trend_start_date" value="{{ $val }}" required class="mt-1 block max-w-sm rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                         </div>
 
                         <div class="flex items-center">

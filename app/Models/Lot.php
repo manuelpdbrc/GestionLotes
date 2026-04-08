@@ -8,10 +8,24 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Lot extends Model
 {
+    protected static function booted()
+    {
+        static::created(function ($lot) {
+            LotHistory::log($lot, 'creado', null);
+        });
+
+        static::updated(function ($lot) {
+            if ($lot->isDirty('estado')) {
+                LotHistory::log($lot, 'cambio_estado', $lot->getOriginal('estado'));
+            }
+        });
+    }
+
     protected $fillable = [
         'manzana',
         'nro_lote',
         'superficie',
+        'superficie_maxima',
         'zona',
         'fot',
         'fos',
@@ -23,6 +37,7 @@ class Lot extends Model
 
     protected $casts = [
         'superficie' => 'decimal:2',
+        'superficie_maxima' => 'decimal:2',
         'fot' => 'decimal:2',
         'fos' => 'decimal:2',
         'h_maxima' => 'decimal:2',
@@ -89,6 +104,11 @@ class Lot extends Model
     public function history(): HasMany
     {
         return $this->hasMany(BlockHistory::class);
+    }
+
+    public function lotHistories(): HasMany
+    {
+        return $this->hasMany(LotHistory::class);
     }
 
     // ── Scopes ───────────────────────────────────────────

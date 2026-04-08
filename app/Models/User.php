@@ -77,7 +77,7 @@ class User extends Authenticatable
 
     public function canSuperviseLots(): bool
     {
-        return $this->isSupervisor();
+        return $this->isSupervisor() || $this->isAdmin();
     }
 
     public function canViewDashboard(): bool

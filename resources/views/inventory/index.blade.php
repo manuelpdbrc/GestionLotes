@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Inventario de Lotes: Bariloche del Este') }}
+            {{ __('Inventario de Lotes: ') }} {{ $global_app_title ?? 'Sistema' }}
         </h2>
     </x-slot>
 
@@ -84,10 +84,17 @@
                         </div>
                     </div>
 
-                    <div class="mt-8 border-t pt-4">
-                        <button @click="q_manzana=''; q_nro=''; q_estado=[];" class="w-full sm:w-auto text-xs text-indigo-600 hover:text-indigo-900 font-medium">
+                    <div class="mt-8 border-t pt-4 space-y-3">
+                        <button @click="q_manzana=''; q_nro=''; q_estado=[];" class="w-full text-xs text-indigo-600 hover:text-indigo-900 font-medium bg-indigo-50 py-2 rounded transition-colors">
                             Limpiar Filtros
                         </button>
+
+                        @if (Auth::user()->canViewDashboard())
+                        <a :href="`/inventory-pdf?manzana=${q_manzana}&nro_lote=${q_nro}&estado=${q_estado.join(',')}`" class="w-full text-center flex items-center justify-center text-xs text-indigo-700 border border-indigo-200 bg-white hover:bg-indigo-50 font-medium py-2 rounded shadow-sm transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Exportar Inventario (PDF)
+                        </a>
+                        @endif
                     </div>
                 </div>
 
@@ -134,9 +141,36 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button @click="openModal({{ $lot->id }})" class="text-indigo-600 hover:text-indigo-900 font-bold bg-indigo-50 hover:bg-indigo-100 rounded-md px-3 py-1 transition-colors">
-                                            Ver Ficha
-                                        </button>
+                                        <div class="flex items-center justify-end space-x-2">
+                                            <template x-if="isSupervisor">
+                                                <div class="hidden lg:flex space-x-2 border-r border-gray-200 pr-2 mr-1">
+                                                    @if(in_array($lot->estado, [\App\Models\Lot::ESTADO_DISPONIBLE, \App\Models\Lot::ESTADO_BLOQUEADO]))
+                                                        <button type="button" 
+                                                                @click="if(confirm('Marcar Mza {{ $lot->manzana }} Lote {{ $lot->nro_lote }} como reservado?')) { window.fetchApi('/lots/{{ $lot->id }}/reserve', { method: 'PUT' }).then(res => { alert(res.message); window.location.reload(); }); }"
+                                                                class="text-gray-600 hover:text-gray-900 font-medium bg-gray-100 hover:bg-gray-200 rounded-md px-2 py-1 transition-colors text-xs">
+                                                            Reservar
+                                                        </button>
+                                                    @endif
+                                                    @if(in_array($lot->estado, [\App\Models\Lot::ESTADO_DISPONIBLE, \App\Models\Lot::ESTADO_BLOQUEADO, \App\Models\Lot::ESTADO_RESERVADO]))
+                                                        <button type="button" 
+                                                                @click="if(confirm('Marcar Mza {{ $lot->manzana }} Lote {{ $lot->nro_lote }} como vendido?')) { window.fetchApi('/lots/{{ $lot->id }}/sell', { method: 'PUT' }).then(res => { alert(res.message); window.location.reload(); }); }"
+                                                                class="text-gray-600 hover:text-gray-900 font-medium bg-gray-100 hover:bg-gray-200 rounded-md px-2 py-1 transition-colors text-xs">
+                                                            Vender
+                                                        </button>
+                                                    @endif
+                                                    @if(in_array($lot->estado, [\App\Models\Lot::ESTADO_RESERVADO, \App\Models\Lot::ESTADO_BLOQUEADO]))
+                                                        <button type="button" 
+                                                                @click="if(confirm('Liberar lote y volver a Disponible?')) { window.fetchApi('/lots/{{ $lot->id }}/revert', { method: 'PUT' }).then(res => { alert(res.message); window.location.reload(); }); }"
+                                                                class="text-red-500 hover:text-red-700 font-medium bg-red-50 hover:bg-red-100 rounded-md px-2 py-1 transition-colors text-xs">
+                                                            Liberar
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                            </template>
+                                            <button @click="openModal({{ $lot->id }})" class="text-indigo-600 hover:text-indigo-900 font-bold bg-indigo-50 hover:bg-indigo-100 rounded-md px-3 py-1 transition-colors">
+                                                Ver Ficha
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

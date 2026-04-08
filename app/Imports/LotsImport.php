@@ -63,6 +63,7 @@ class LotsImport implements ToModel, WithHeadingRow, SkipsOnError
             'fot' => isset($row['fot']) ? floatval($row['fot']) : null,
             'fos' => isset($row['fos']) ? floatval($row['fos']) : null,
             'h_maxima' => isset($row['h_maxima']) ? floatval($row['h_maxima']) : null,
+            'superficie_maxima' => isset($row['superficie_maxima']) ? floatval($row['superficie_maxima']) : null,
             'observaciones' => $row['observaciones'] ?? null,
             'precio' => floatval($row['precio'] ?? 0),
             'estado' => $estado,

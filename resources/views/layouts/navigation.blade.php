@@ -5,8 +5,13 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                    <a href="{{ route('dashboard') }}" class="flex items-center">
+                        @if(isset($global_app_logo) && $global_app_logo)
+                            <img src="{{ \Illuminate\Support\Facades\Storage::url($global_app_logo) }}" alt="Logo" class="block h-9 w-auto object-contain">
+                        @else
+                            <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                            <span class="ml-2 font-bold text-gray-800 hidden md:block">{{ $global_app_title ?? 'Gestión de Lotes' }}</span>
+                        @endif
                     </a>
                 </div>
 

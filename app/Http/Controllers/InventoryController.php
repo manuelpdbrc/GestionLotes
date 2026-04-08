@@ -85,16 +85,86 @@ class InventoryController extends Controller
 
         // Include block info if lot is blocked
         if ($lot->activeBlock) {
+            $isOwn = $lot->activeBlock->user_id === $user->id;
+            $canSeeClientInfo = $isOwn || $user->canSuperviseLots();
+
             $data['block'] = [
                 'id' => $lot->activeBlock->id,
                 'vendedor' => $lot->activeBlock->user->name,
-                'client_name' => $lot->activeBlock->client_name,
-                'client_phone' => $lot->activeBlock->client_phone,
+                'client_name' => $canSeeClientInfo ? $lot->activeBlock->client_name : '***',
+                'client_phone' => $canSeeClientInfo ? $lot->activeBlock->client_phone : '***',
                 'expires_at' => $lot->activeBlock->expires_at->format('d/m/Y H:i'),
-                'is_own' => $lot->activeBlock->user_id === $user->id,
+                'is_own' => $isOwn,
             ];
         }
 
         return response()->json($data);
+    }
+
+    /**
+     * Get lot history for the modal (JSON).
+     */
+    public function history(Request $request, Lot $lot)
+    {
+        $user = $request->user();
+
+        // Check visibility
+        if ($lot->estado === Lot::ESTADO_OCULTO && !$user->canSeeHiddenLots()) {
+            abort(403);
+        }
+
+        $history = $lot->lotHistories()
+            ->with('user')
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function ($h) {
+                return [
+                    'date' => $h->created_at->format('d/m/Y H:i'),
+                    'user' => $h->user->name ?? 'Sistema',
+                    'action' => ucfirst(str_replace('_', ' ', $h->action)),
+                    'old_state' => $h->old_state ? \App\Models\Lot::ESTADO_LABELS[$h->old_state] ?? $h->old_state : null,
+                    'new_state' => \App\Models\Lot::ESTADO_LABELS[$h->new_state] ?? $h->new_state,
+                ];
+            });
+
+        return response()->json($history);
+    }
+
+    /**
+     * Export the filtered inventory as a PDF Document.
+     */
+    public function exportPdf(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user->canViewDashboard()) {
+            abort(403, 'No tienes permisos para descargar el reporte.');
+        }
+
+        $query = Lot::visible($user)
+            ->orderBy('manzana')
+            ->orderBy('nro_lote');
+
+        if ($request->filled('manzana')) {
+            $query->where('manzana', $request->manzana);
+        }
+
+        if ($request->filled('nro_lote')) {
+            // Using a simple LIKE for nro_lote, same as Alpine frontend logic
+            $query->where('nro_lote', 'like', '%' . $request->nro_lote . '%');
+        }
+
+        if ($request->filled('estado')) {
+            $estados = explode(',', $request->estado);
+            if (!empty($estados)) {
+                $query->whereIn('estado', $estados);
+            }
+        }
+
+        $lots = $query->get();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.inventory', compact('lots'));
+        
+        return $pdf->download('inventario_lotes_' . date('Ymd_hi') . '.pdf');
     }
 }

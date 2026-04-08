@@ -210,4 +210,29 @@ class BlockController extends Controller
             'message' => 'Lote marcado como Vendido.',
         ]);
     }
+
+    /**
+     * Mark lot as Disponible (Supervisor only - overriding reservations or admin blocks).
+     */
+    public function revertState(Request $request, Lot $lot)
+    {
+        $user = $request->user();
+
+        if (!$user->canSuperviseLots()) {
+            abort(403);
+        }
+
+        DB::transaction(function () use ($lot) {
+            $activeBlock = $lot->activeBlock;
+            if ($activeBlock) {
+                $activeBlock->update(['status' => Block::STATUS_CANCELLED]);
+            }
+            $lot->update(['estado' => Lot::ESTADO_DISPONIBLE]);
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lote liberado y devuelto a Disponible.',
+        ]);
+    }
 }

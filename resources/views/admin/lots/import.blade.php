@@ -10,9 +10,16 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
                     
-                    <div class="mb-6 border-b pb-4">
-                        <h3 class="text-lg font-medium text-gray-900 mb-2">Instrucciones</h3>
-                        <p class="text-sm text-gray-600 mb-2">El archivo debe ser un Excel (.xlsx, .xls) o CSV con las siguientes columnas en la primera fila (los nombres deben coincidir exactamente, sin omitir los obligatorios):</p>
+                    <div class="mb-6 border-b pb-4 flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">Instrucciones</h3>
+                            <p class="text-sm text-gray-600 mb-2">El archivo debe ser un Excel (.xlsx, .xls) o CSV con las siguientes columnas en la primera fila (los nombres deben coincidir exactamente, sin omitir los obligatorios):</p>
+                        </div>
+                        <a href="{{ route('admin.lots.template') }}" class="inline-flex items-center px-4 py-2 border border-blue-300 rounded-md shadow-sm text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none shrink-0">
+                            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Descargar Plantilla
+                        </a>
+                    </div>
                         <ul class="list-disc list-inside text-sm text-gray-700 bg-gray-50 p-4 rounded-md">
                             <li><strong>manzana</strong> (Requerido)</li>
                             <li><strong>nro_lote</strong> (Requerido)</li>
@@ -23,6 +30,7 @@
                             <li>fot (Opcional, numérico)</li>
                             <li>fos (Opcional, numérico)</li>
                             <li>h_maxima (Opcional, numérico)</li>
+                            <li>superficie_maxima (Opcional, numérico)</li>
                             <li>observaciones (Opcional)</li>
                         </ul>
                     </div>

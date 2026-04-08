@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Block;
 use App\Models\BlockHistory;
 use App\Models\Lot;
+use App\Models\LotHistory;
 use App\Models\SystemSetting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -66,7 +67,7 @@ class DashboardController extends Controller
             ->pluck('count', 'date');
 
         // Reservations per day
-        $reservations = BlockHistory::where('action', BlockHistory::ACTION_RESERVED)
+        $reservations = LotHistory::where('new_state', Lot::ESTADO_RESERVADO)
             ->where('created_at', '>=', $start)
             ->select(DB::raw('DATE(created_at) as date'), DB::raw('COUNT(*) as count'))
             ->groupBy('date')
@@ -142,7 +143,7 @@ class DashboardController extends Controller
             ->whereDate('created_at', $today)
             ->count();
 
-        $reservationsToday = BlockHistory::where('action', BlockHistory::ACTION_RESERVED)
+        $reservationsToday = LotHistory::where('new_state', Lot::ESTADO_RESERVADO)
             ->whereDate('created_at', $today)
             ->count();
 

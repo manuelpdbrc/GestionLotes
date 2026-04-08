@@ -103,6 +103,26 @@ class LotController extends Controller
             ->with('import_errors', $import->getErrors());
     }
 
+    public function template()
+    {
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="plantilla_lotes.csv"',
+        ];
+
+        $columns = [
+            'manzana', 'nro_lote', 'superficie', 'precio', 'estado', 'zona', 'fot', 'fos', 'h_maxima', 'superficie_maxima', 'observaciones'
+        ];
+
+        $callback = function() use ($columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     private function validateLot(Request $request, ?int $exceptId = null): array
     {
         $uniqueRule = 'unique:lots,nro_lote,NULL,id,manzana,' . $request->manzana;
